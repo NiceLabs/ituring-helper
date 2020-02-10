@@ -84,7 +84,15 @@ def set_token():
         login()
 
 
+def can_refresh_token():
+    modified_time = os.path.getmtime(token_path)
+    delta_time = datetime.now() - datetime.fromtimestamp(modified_time)
+    return delta_time.days >= 1
+
+
 def refresh_token():
+    if not can_refresh_token():
+        return
     token = None
     with open(token_path, "r") as fp:
         token = json.load(fp)
