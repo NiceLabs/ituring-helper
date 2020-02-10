@@ -206,7 +206,7 @@ def login():
 def main():
     set_token()
 
-    parser = ArgumentParser(description="ituring kit")
+    parser = ArgumentParser(description="ituring helper")
     subparsers = parser.add_subparsers(dest="action")
     subparsers.add_parser("login")
     subparsers.add_parser("report")
