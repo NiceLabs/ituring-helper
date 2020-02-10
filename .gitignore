@@ -1,2 +1,3 @@
 *.pyc
+*.txt
 /ituring-access-token.json

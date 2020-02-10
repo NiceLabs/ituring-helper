@@ -65,7 +65,7 @@ def download_book(book_id: int):
         filename = "[{id:05}] {name}.{kind}".format(
             id=book_id, name=payload["name"].strip().replace("/", ""), kind=kind.lower()
         )
-        return link, filename
+        return book_id, link, filename
 
     if payload["supportPdf"]:
         yield make_link("PDF")
@@ -175,15 +175,16 @@ def clean_favourite():
 def fetch():
     book_ids = map(extract_book_item, get_book_shelf())
     links = (
-        (link, filename)
+        (book_id, link, filename)
         for book in map(download_book, sorted(book_ids))
-        for link, filename in book
+        for book_id, link, filename in book
     )
-    for link, filename in links:
+    for book_id, link, filename in links:
         options = [
             link,
-            'header="Authorization: %(Authorization)s"' % session.headers,
-            "out=%s" % "ebooks/%s" % filename,
+            'header="Authorization\: %(Authorization)s"' % session.headers,
+            "referer=https://m.ituring.com.cn/book/%s" % book_id,
+            "out=ebooks/%s" % filename,
         ]
         print("\n\t".join(options))
 
