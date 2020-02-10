@@ -182,7 +182,7 @@ def fetch():
     for book_id, link, filename in links:
         options = [
             link,
-            'header="Authorization\: %(Authorization)s"' % session.headers,
+            'header="Authorization: %(Authorization)s"' % session.headers,
             "referer=https://m.ituring.com.cn/book/%s" % book_id,
             "out=ebooks/%s" % filename,
         ]
