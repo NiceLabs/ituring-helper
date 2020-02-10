@@ -17,7 +17,7 @@ session.headers["Content-Type"] = "application/json"
 prefix = "https://api.ituring.com.cn/api/"
 prefix_mainly = "http://www.ituring.com.cn/api/"
 ebook_link = "http://www.ituring.com.cn/file/ebook/%s?type=%s"
-token_path = "ituring-access-token.json"
+token_path = "ituring-token.json"
 
 
 def expand_paging(query):
@@ -76,11 +76,28 @@ def download_book(book_id: int):
 
 
 def set_token():
-    if not os.path.exists(token_path):
-        return
+    try:
+        with open(token_path, "r") as fp:
+            token = json.load(fp)
+            session.headers["Authorization"] = "Bearer %(accessToken)s" % token
+    except:
+        login()
+
+
+def refresh_token():
+    token = None
     with open(token_path, "r") as fp:
         token = json.load(fp)
-        session.headers["Authorization"] = "Bearer %s" % token
+    response = requests.post(
+        urljoin(prefix, "Account/RefreshToken"),
+        json={
+            "AccessToken": token["accessToken"],
+            "RefreshToken": token["refreshToken"],
+        },
+    )
+    payload = response.json()
+    with open(token_path, "w") as fp:
+        json.dump(payload, fp, indent=4)
 
 
 def extract_book_item(item: Dict):
@@ -200,12 +217,13 @@ def login():
         print(payload["message"], file=sys.stderr)
         return
     with open(token_path, "w") as fp:
-        json.dump(payload["accessToken"], fp)
+        json.dump(payload, fp, indent=4)
     print("login done")
 
 
 def main():
     set_token()
+    refresh_token()
 
     parser = ArgumentParser(description="ituring helper")
     subparsers = parser.add_subparsers(dest="action")
